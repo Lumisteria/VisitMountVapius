@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisitMountVapius", "VisitMountVapius\VisitMountVapius.csproj", "{C7319340-C736-45DE-AE91-66B1849DC936}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7319340-C736-45DE-AE91-66B1849DC936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7319340-C736-45DE-AE91-66B1849DC936}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7319340-C736-45DE-AE91-66B1849DC936}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7319340-C736-45DE-AE91-66B1849DC936}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CE652C0E-51E3-465A-BA98-AD7872F1A50E}
+	EndGlobalSection
+EndGlobal
