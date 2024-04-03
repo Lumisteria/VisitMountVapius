@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 using StardewValley;
 using StardewValley.Inventories;
@@ -14,9 +8,12 @@ using StardewValley.Tools;
 namespace VisitMountVapius.Framework;
 internal class LinkedChest
 {
+
+    const string PREFIX = "VisitMountVapis.";
+
     internal static bool Action(GameLocation location, string[] args, Farmer farmer, Point point)
     {
-        if (!ArgUtility.TryGet(args, 1, out var chest_name, out var error))
+        if (!ArgUtility.TryGet(args, 1, out string? chest_name, out string? error))
         {
             location.LogTileActionError(args, point.X, point.Y, error);
             return false;
@@ -28,7 +25,7 @@ internal class LinkedChest
             return false;
         }
 
-        var mutex = farmer.team.GetOrCreateGlobalInventoryMutex(chest_name);
+        StardewValley.Network.NetMutex mutex = farmer.team.GetOrCreateGlobalInventoryMutex(PREFIX + chest_name);
 
         mutex.RequestLock(() =>
         {
@@ -40,15 +37,15 @@ internal class LinkedChest
 
     private static void LaunchMenu(Farmer farmer, string chest_name)
     {
-        var items = farmer.team.GetOrCreateGlobalInventory(chest_name);
+        Inventory items = farmer.team.GetOrCreateGlobalInventory(PREFIX + chest_name);
         Game1.activeClickableMenu = new ItemGrabMenu(
             inventory: items,
             reverseGrab: false,
             showReceivingMenu: true,
-            highlightFunction: highlightSansTools,
-            behaviorOnItemSelectFunction: (item, farmer) => grabItemFromInventory(item, farmer, chest_name),
+            highlightFunction: HighlightSansTools,
+            behaviorOnItemSelectFunction: (item, farmer) => GrabItemFromInventory(item, farmer, chest_name),
             message: null,
-            behaviorOnItemGrab: (item, farmer) => grabItemFromChest(item, farmer, chest_name),
+            behaviorOnItemGrab: (item, farmer) => GrabItemFromChest(item, farmer, chest_name),
             snapToBottom: false,
             canBeExitedWithKey: true,
             playRightClickSound: true,
@@ -58,17 +55,17 @@ internal class LinkedChest
             sourceItem: null);
     }
 
-    private static bool highlightSansTools(Item i) => i is not Tool || i is MeleeWeapon;
+    private static bool HighlightSansTools(Item i) => (i is not Tool || i is MeleeWeapon) && (i is not StardewValley.Object obj || !obj.questItem.Value);
 
-    private static void grabItemFromInventory(Item item, Farmer who, string chest_name)
+    private static void GrabItemFromInventory(Item item, Farmer who, string chest_name)
     {
         if (item.Stack == 0)
         {
             item.Stack = 1;
         }
 
-        var inventory = who.team.GetOrCreateGlobalInventory(chest_name);
-        var tmp = AddToInventory(inventory, item);
+        Inventory inventory = who.team.GetOrCreateGlobalInventory(chest_name);
+        Item? tmp = AddToInventory(inventory, item);
         if (tmp is null)
         {
             who.removeItemFromInventory(item);
@@ -89,11 +86,11 @@ internal class LinkedChest
 
     }
 
-    private static void grabItemFromChest(Item item, Farmer who, string chest_name)
+    private static void GrabItemFromChest(Item item, Farmer who, string chest_name)
     {
         if (who.couldInventoryAcceptThisItem(item))
         {
-            var items = who.team.GetOrCreateGlobalInventory(chest_name);
+            Inventory items = who.team.GetOrCreateGlobalInventory(PREFIX + chest_name);
             items.Remove(item);
             items.RemoveEmptySlots();
             LaunchMenu(who, chest_name);

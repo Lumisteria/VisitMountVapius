@@ -22,5 +22,16 @@
     <Version>1.0.2</Version>
     <UpdateKeys>Nexus:9600</UpdateKeys>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json" HintPath="$(GamePath)\smapi-internal\Newtonsoft.Json.dll" private="false" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Using Alias="Object" Include="System.Object" />
+    <Using Alias="SObject" Include="StardewValley.Object" />
+  </ItemGroup>
+  
 
 </Project>

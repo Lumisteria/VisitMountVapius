@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.Contracts;
 
+using Microsoft.Xna.Framework;
+
 using StardewModdingAPI;
 
+using StardewValley;
 using StardewValley.TokenizableStrings;
 
 namespace VisitMountVapius.Framework;
@@ -239,4 +242,41 @@ public static class StringExtensions
             monitor.Log(ex.ToString());
         }
     }
+
+    /// <summary>
+    /// Given a Rectangle area, clamps it to the current map.
+    /// </summary>
+    /// <param name="rectangle">rectangle.</param>
+    /// <param name="location">map to clamp to.</param>
+    /// <returns>clamped rectangle.</returns>
+    internal static Rectangle ClampMap(this Rectangle rectangle, GameLocation location)
+    {
+        if (location?.Map?.GetLayer("Back") is not { } layer)
+        {
+            ModEntry.ModMonitor.LogOnce($"{location?.NameOrUniqueName ?? "Unknown Location"} appears to be missing 'back' layer.", LogLevel.Warn);
+            return Rectangle.Empty;
+        }
+        else
+        {
+            if (rectangle.Width <= 0)
+            {
+                rectangle.Width = layer.LayerWidth - rectangle.X;
+            }
+            if (rectangle.Height <= 0)
+            {
+                rectangle.Height = layer.LayerHeight - rectangle.Y;
+            }
+
+            return new Rectangle()
+            {
+                X = Math.Clamp(rectangle.X, 0, layer.LayerWidth),
+                Y = Math.Clamp(rectangle.Y, 0, layer.LayerHeight),
+                Width = Math.Clamp(rectangle.Width, 0, layer.LayerHeight - rectangle.X),
+                Height = Math.Clamp(rectangle.Height, 0, layer.LayerHeight - rectangle.Y),
+            };
+        }
+    }
+
+    public static Point GetRandomTile(this Rectangle rectangle)
+        => new(Random.Shared.Next(rectangle.Left, rectangle.Right + 1), Random.Shared.Next(rectangle.Top, rectangle.Bottom + 1));
 }
