@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Utilities;
 
 using StardewValley;
 
@@ -17,6 +18,14 @@ internal sealed class ModEntry : Mod
 {
     internal static IMonitor ModMonitor = null!;
 
+    private static readonly PerScreen<LocationDataExtensions?> _activeLocation = new();
+
+    internal static LocationDataExtensions? ActiveLocation
+    {
+        get => _activeLocation.Value;
+        private set => _activeLocation.Value = value;
+    }
+
     /// <inheritdoc />
     public override void Entry(IModHelper helper)
     {
@@ -27,6 +36,7 @@ internal sealed class ModEntry : Mod
         harmony.PatchAll(typeof(ModEntry).Assembly);
 
         helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
+        helper.Events.Player.Warped += this.OnPlayerWarped;
         helper.Events.GameLoop.DayStarted += this.OnDayStart;
 
         AssetLoader.Init(helper.GameContent);
@@ -40,8 +50,35 @@ internal sealed class ModEntry : Mod
 #endif
     }
 
+    private void OnPlayerWarped(object? sender, WarpedEventArgs e)
+    {
+        if (ReferenceEquals(e.OldLocation, e.NewLocation))
+        {
+            return;
+        }
+
+        if (e.NewLocation is { } current && AssetLoader.GetLocationData().TryGetValue(current.Name, out var locationData))
+        {
+            ActiveLocation = locationData;
+        }
+        else
+        {
+            ActiveLocation = null;
+        }
+    }
+
     private void OnDayStart(object? sender, DayStartedEventArgs e)
     {
+        if (Game1.currentLocation is GameLocation current
+            && AssetLoader.GetLocationData().TryGetValue(current.Name, out var locationData))
+        {
+            ActiveLocation = locationData;
+        }
+        else
+        {
+            ActiveLocation = null;
+        }
+
         if (!Context.IsMainPlayer)
         {
             return;
@@ -99,5 +136,7 @@ internal sealed class ModEntry : Mod
         GameLocation.RegisterTileAction("vmv.linked.chest", LinkedChest.Action);
 
         GameStateQuery.Register("VMV.HasSeenActiveDialogueEvent", HasSeenActiveDialogueEvent.Query);
+        GameStateQuery.Register("VMV.MONSTER_NAME", MonsterGSQ.Name);
+        GameStateQuery.Register("VMV.MONSTER_MAX_HEALTH", MonsterGSQ.MaxHealth);
     }
 }
