@@ -1,6 +1,4 @@
-﻿using StardewValley.GameData;
-
-namespace VisitMountVapius.Models;
+﻿namespace VisitMountVapius.Models;
 internal sealed class LocationMonsterDrop: EntryWithRectangle
 {
     public List<GeneralItemSpawnData>? Items { get; set; } = null;

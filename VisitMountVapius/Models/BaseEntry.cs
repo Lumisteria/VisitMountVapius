@@ -11,7 +11,7 @@ public abstract class BaseEntry
     /// <summary>
     /// Gets or sets the <see cref="GameStateQuery"/> to check, or null for always true.
     /// </summary>
-    public string? Conditions { get; set; }
+    public string? Condition { get; set; }
 
     /// <summary>
     /// Gets or sets the chance this entry should apply.
@@ -36,6 +36,6 @@ public abstract class BaseEntry
 
         GameStateQueryContext context = new(location, player, null, null, Random.Shared,null, additional_context);
 
-        return GameStateQuery.CheckConditions(this.Conditions, context);
+        return GameStateQuery.CheckConditions(this.Condition, context);
     }
 }

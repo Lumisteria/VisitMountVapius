@@ -9,6 +9,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 
 using VisitMountVapius.Framework;
+using VisitMountVapius.Interfaces;
 using VisitMountVapius.Models;
 
 namespace VisitMountVapius;
@@ -50,14 +51,12 @@ internal sealed class ModEntry : Mod
 #endif
     }
 
-    private void OnPlayerWarped(object? sender, WarpedEventArgs e)
+    private static void SetLocationData(GameLocation location)
     {
-        if (ReferenceEquals(e.OldLocation, e.NewLocation))
-        {
-            return;
-        }
-
-        if (e.NewLocation is { } current && AssetLoader.GetLocationData().TryGetValue(current.Name, out var locationData))
+        Dictionary<string, LocationDataExtensions> data = AssetLoader.GetLocationData();
+        if (location is { } current
+            && (data.TryGetValue(current.Name, out var locationData) ||
+                data.TryGetValue(current.locationContextId, out locationData)))
         {
             ActiveLocation = locationData;
         }
@@ -67,17 +66,19 @@ internal sealed class ModEntry : Mod
         }
     }
 
+    private void OnPlayerWarped(object? sender, WarpedEventArgs e)
+    {
+        if (ReferenceEquals(e.OldLocation, e.NewLocation))
+        {
+            return;
+        }
+
+        SetLocationData(e.NewLocation);
+    }
+
     private void OnDayStart(object? sender, DayStartedEventArgs e)
     {
-        if (Game1.currentLocation is GameLocation current
-            && AssetLoader.GetLocationData().TryGetValue(current.Name, out var locationData))
-        {
-            ActiveLocation = locationData;
-        }
-        else
-        {
-            ActiveLocation = null;
-        }
+        SetLocationData(Game1.currentLocation);
 
         if (!Context.IsMainPlayer)
         {
@@ -138,5 +139,17 @@ internal sealed class ModEntry : Mod
         GameStateQuery.Register("VMV.HasSeenActiveDialogueEvent", HasSeenActiveDialogueEvent.Query);
         GameStateQuery.Register("VMV.MONSTER_NAME", MonsterGSQ.Name);
         GameStateQuery.Register("VMV.MONSTER_MAX_HEALTH", MonsterGSQ.MaxHealth);
+
+
+        // handle integration with events tester.
+        try
+        {
+            IEventTesterAPI? api = this.Helper.ModRegistry.GetApi<IEventTesterAPI>("sinZandAtravita.SinZsEventTester");
+            api?.RegisterAsset(AssetLoader.LocationExtensions);
+        }
+        catch (Exception ex)
+        {
+            ModMonitor.LogError("mapping Event Tester's API", ex);
+        }
     }
 }
