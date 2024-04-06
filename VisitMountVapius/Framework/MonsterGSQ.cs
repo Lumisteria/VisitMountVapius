@@ -27,7 +27,7 @@ internal static class MonsterGSQ
 
     internal static bool Name(string[] query, GameStateQueryContext context)
     {
-        if (context.CustomFields?.TryGetValue(MonsterDropPatches.MonsterKey, out var obj) is not true || obj is not Monster monster)
+        if (context.CustomFields?.TryGetValue(MonsterDropPatches.MonsterKey, out object? obj) is not true || obj is not Monster monster)
         {
             return false;
         }

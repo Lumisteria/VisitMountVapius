@@ -1,5 +1,6 @@
 ﻿using StardewValley.Extensions;
 using StardewValley;
+using StardewValley.Delegates;
 
 namespace VisitMountVapius.Models;
 /// <summary>
@@ -23,7 +24,7 @@ public abstract class BaseEntry
     /// <param name="location">The game location to use, or null for current location.</param>
     /// <param name="player">The player to use, or null for current player.</param>
     /// <returns>True if allowed, false otherwise.</returns>
-    public bool CheckCondition(GameLocation? location, Farmer? player)
+    public bool CheckCondition(GameLocation? location, Farmer? player, Dictionary<string, object>? additional_context = null)
     {
         player ??= Game1.player;
         location ??= Game1.currentLocation ?? player.currentLocation;
@@ -33,6 +34,8 @@ public abstract class BaseEntry
             return false;
         }
 
-        return GameStateQuery.CheckConditions(this.Conditions, location, player);
+        GameStateQueryContext context = new(location, player, null, null, Random.Shared,null, additional_context);
+
+        return GameStateQuery.CheckConditions(this.Conditions, context);
     }
 }
