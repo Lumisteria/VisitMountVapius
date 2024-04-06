@@ -9,6 +9,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 
 using VisitMountVapius.Framework;
+using VisitMountVapius.Framework.GSQ;
 using VisitMountVapius.Interfaces;
 using VisitMountVapius.Models;
 
@@ -77,7 +78,7 @@ internal sealed class ModEntry : Mod
     {
         Dictionary<string, LocationDataExtensions> data = AssetLoader.GetLocationData();
         if (location is { } current
-            && (data.TryGetValue(current.Name, out var locationData) ||
+            && (data.TryGetValue(current.Name, out LocationDataExtensions? locationData) ||
                 data.TryGetValue(current.locationContextId, out locationData)))
         {
             ActiveLocation = locationData;
@@ -109,6 +110,16 @@ internal sealed class ModEntry : Mod
             return;
         }
 
+        this.HandleArtifactSpawning();
+    }
+
+    private void OnTimeChanged(object? sender, TimeChangedEventArgs e)
+    {
+        PanningAndFishingSpotManager.Apply(Game1.currentLocation, Game1.player);
+    }
+
+    private void HandleArtifactSpawning()
+    {
         foreach ((string location, LocationDataExtensions data) in AssetLoader.GetLocationData())
         {
             if (Game1.getLocationFromName(location) is not GameLocation loc)
@@ -117,9 +128,9 @@ internal sealed class ModEntry : Mod
                 continue;
             }
 
-            if (data.ArtifactSpawnZones?.Count is > 0)
+            if (data.ArtifactSpawnZones is { } zoneData && zoneData.Count > 0)
             {
-                foreach (ArtifactSpotSpawnZone zone in data.ArtifactSpawnZones)
+                foreach (ArtifactSpotSpawnZone zone in zoneData)
                 {
                     if (!zone.CheckCondition(loc, Game1.player))
                     {
@@ -144,21 +155,20 @@ internal sealed class ModEntry : Mod
                             && !loc.IsTileOccupiedBy(v)
                             && loc.getTileIndexAt(p.X, p.Y, "AlwaysFront") == -1
                             && loc.getTileIndexAt(p.X, p.Y, "Front") == -1
-                            && !loc.isBehindBush(v) 
+                            && !loc.isBehindBush(v)
                             && (loc.doesTileHaveProperty(p.X, p.Y, "Diggable", "Back") is not null
                                 || (loc.GetSeason() == Season.Winter && loc.doesTileHaveProperty(p.X, p.Y, "Type", "Back") == "Grass")))
                         {
-                            loc.Objects.TryAdd(v, ItemRegistry.Create<SObject>(zone.Type));
+                            if (loc.Objects.TryAdd(v, ItemRegistry.Create<SObject>(zone.Type)))
+                            {
+                                count--;
+                            }
                         }
+
+                        safety--;
                     }
                 }
-            }    
+            }
         }
     }
-
-    private void OnTimeChanged(object? sender, TimeChangedEventArgs e)
-    {
-        PanningAndFishingSpotManager.Apply(Game1.currentLocation, Game1.player);
-    }
-
 }

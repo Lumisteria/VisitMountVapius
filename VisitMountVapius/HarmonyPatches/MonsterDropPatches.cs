@@ -90,16 +90,16 @@ internal static class MonsterDropPatches
                 }
             }
 
-            foreach (var drop in debrisToAdd)
+            foreach (Debris drop in debrisToAdd)
             {
                 __instance.debris.Add(drop);
             }
 
             if (who.stats.Get("Book_Void") != 0 && Random.Shared.NextBool(0.03))
             {
-                foreach (var debri in debrisToAdd)
+                foreach (Debris debri in debrisToAdd)
                 {
-                    var newItem = debri.item?.getOne() as Item;
+                    Item? newItem = debri.item?.getOne() as Item;
                     if (newItem is not null)
                     {
                         newItem.Stack = debri.item?.Stack ?? 1;

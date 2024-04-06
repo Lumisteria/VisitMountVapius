@@ -40,7 +40,7 @@ internal static class PanningAndFishingSpotManager
             return;
         }
 
-        foreach (var spawn in data.FishSpotSpawnZones)
+        foreach (EntryWithRectangle spawn in data.FishSpotSpawnZones)
         {
             if (!spawn.CheckCondition(currentLocation, who))
             {

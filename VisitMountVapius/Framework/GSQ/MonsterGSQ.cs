@@ -6,18 +6,18 @@ using VisitMountVapius.HarmonyPatches;
 
 using static StardewValley.GameStateQuery;
 
-namespace VisitMountVapius.Framework;
+namespace VisitMountVapius.Framework.GSQ;
 internal static class MonsterGSQ
 {
     internal static bool MaxHealth(string[] query, GameStateQueryContext context)
     {
-        if (context.CustomFields?.TryGetValue(MonsterDropPatches.MonsterKey, out var obj) is not true || obj is not Monster monster)
+        if (context.CustomFields?.TryGetValue(MonsterDropPatches.MonsterKey, out object? obj) is not true || obj is not Monster monster)
         {
             return false;
         }
 
-        if (!ArgUtility.TryGetInt(query, 1, out var minValue, out string error)
-            ||  ArgUtility.TryGetOptionalInt(query,2, out var maxValue, out error, int.MaxValue))
+        if (!ArgUtility.TryGetInt(query, 1, out int minValue, out string error)
+            ||  ArgUtility.TryGetOptionalInt(query,2, out int maxValue, out error, int.MaxValue))
         {
             return Helpers.ErrorResult(query, error);
         }
@@ -32,7 +32,7 @@ internal static class MonsterGSQ
             return false;
         }
 
-        if (!ArgUtility.TryGet(query, 1, out var name, out var error))
+        if (!ArgUtility.TryGet(query, 1, out string? name, out string? error))
         {
             return Helpers.ErrorResult(query, error);
         }

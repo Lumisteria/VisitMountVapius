@@ -41,8 +41,8 @@ internal static class FruitTreesOnGrassTranspiler
 
             // We want to make this `text == "Stone" || (text == "Grass" && hasOurMapProperty)
 
-            var local = matcher.Instruction.Clone();
-            var jumpPoint = gen.DefineLabel();
+            CodeInstruction local = matcher.Instruction.Clone();
+            Label jumpPoint = gen.DefineLabel();
 
             matcher.Advance(1)
             .Insert(

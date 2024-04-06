@@ -1,13 +1,13 @@
 ﻿using StardewValley;
 using StardewValley.Delegates;
 
-namespace VisitMountVapius.Framework;
+namespace VisitMountVapius.Framework.GSQ;
 
 internal static class HasSeenActiveDialogueEvent
 {
     internal static bool Query(string[] query, GameStateQueryContext context)
     {
-        if (!ArgUtility.TryGet(query, 1, out var playerKey, out var error) || !ArgUtility.TryGet(query, 2, out var dialogueTopic, out error))
+        if (!ArgUtility.TryGet(query, 1, out string? playerKey, out string? error) || !ArgUtility.TryGet(query, 2, out string? dialogueTopic, out error))
         {
             return GameStateQuery.Helpers.ErrorResult(query, error);
         }
