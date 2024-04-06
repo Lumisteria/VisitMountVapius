@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 
 namespace VisitMountVapius.Models;
+
+/// <summary>
+/// A data entry that has a rectangle area.
+/// </summary>
 internal class EntryWithRectangle: BaseEntry
 {
     /// <summary>

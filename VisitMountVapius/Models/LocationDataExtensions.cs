@@ -5,4 +5,6 @@ internal sealed class LocationDataExtensions
     public List<ArtifactSpotSpawnZone>? ArtifactSpawnZones { get; set; }
 
     public List<LocationMonsterDrop>? MonsterDropZones { get; set; }
+    public List<EntryWithRectangle> FishSpotSpawnZones { get; set; }
+    public List<EntryWithRectangle> PanSpotSpawnZones { get; set; }
 }

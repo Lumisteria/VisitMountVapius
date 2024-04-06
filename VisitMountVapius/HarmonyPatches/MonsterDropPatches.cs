@@ -18,7 +18,7 @@ internal static class MonsterDropPatches
     [HarmonyPatch(nameof(GameLocation.monsterDrop))]
     private static void Postfix(GameLocation __instance, Monster monster, int x, int y, Farmer who)
     {
-        if (ModEntry.ActiveLocation?.MonsterDropZones is not { } zones)
+        if (ModEntry.ActiveLocation?.MonsterDropZones is not { } zones || zones.Count == 0)
         {
             return;
         }

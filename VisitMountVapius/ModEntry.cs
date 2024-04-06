@@ -40,6 +40,8 @@ internal sealed class ModEntry : Mod
         helper.Events.Player.Warped += this.OnPlayerWarped;
         helper.Events.GameLoop.DayStarted += this.OnDayStart;
 
+        helper.Events.GameLoop.TimeChanged += this.OnTimeChanged;
+
         AssetLoader.Init(helper.GameContent);
         helper.Events.Content.AssetRequested += static (_, e) => AssetLoader.Load(e);
 
@@ -49,6 +51,26 @@ internal sealed class ModEntry : Mod
             LinkedChest.Action(Game1.getFarm(), new[] { "vmv.linked.chest", "test-chest" }, Game1.player, Game1.player.TilePoint);
         });
 #endif
+    }
+
+    private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
+    {
+        GameLocation.RegisterTileAction("vmv.linked.chest", LinkedChest.Action);
+
+        GameStateQuery.Register("VMV.HasSeenActiveDialogueEvent", HasSeenActiveDialogueEvent.Query);
+        GameStateQuery.Register("VMV.MONSTER_NAME", MonsterGSQ.Name);
+        GameStateQuery.Register("VMV.MONSTER_MAX_HEALTH", MonsterGSQ.MaxHealth);
+
+        // handle integration with events tester.
+        try
+        {
+            IEventTesterAPI? api = this.Helper.ModRegistry.GetApi<IEventTesterAPI>("sinZandAtravita.SinZsEventTester");
+            api?.RegisterAsset(AssetLoader.LocationExtensions);
+        }
+        catch (Exception ex)
+        {
+            ModMonitor.LogError("mapping Event Tester's API", ex);
+        }
     }
 
     private static void SetLocationData(GameLocation location)
@@ -74,11 +96,13 @@ internal sealed class ModEntry : Mod
         }
 
         SetLocationData(e.NewLocation);
+        PanningAndFishingSpotManager.Apply(e.NewLocation, Game1.player);
     }
 
     private void OnDayStart(object? sender, DayStartedEventArgs e)
     {
         SetLocationData(Game1.currentLocation);
+        PanningAndFishingSpotManager.Reset();
 
         if (!Context.IsMainPlayer)
         {
@@ -132,24 +156,9 @@ internal sealed class ModEntry : Mod
         }
     }
 
-    private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
+    private void OnTimeChanged(object? sender, TimeChangedEventArgs e)
     {
-        GameLocation.RegisterTileAction("vmv.linked.chest", LinkedChest.Action);
-
-        GameStateQuery.Register("VMV.HasSeenActiveDialogueEvent", HasSeenActiveDialogueEvent.Query);
-        GameStateQuery.Register("VMV.MONSTER_NAME", MonsterGSQ.Name);
-        GameStateQuery.Register("VMV.MONSTER_MAX_HEALTH", MonsterGSQ.MaxHealth);
-
-
-        // handle integration with events tester.
-        try
-        {
-            IEventTesterAPI? api = this.Helper.ModRegistry.GetApi<IEventTesterAPI>("sinZandAtravita.SinZsEventTester");
-            api?.RegisterAsset(AssetLoader.LocationExtensions);
-        }
-        catch (Exception ex)
-        {
-            ModMonitor.LogError("mapping Event Tester's API", ex);
-        }
+        PanningAndFishingSpotManager.Apply(Game1.currentLocation, Game1.player);
     }
+
 }
