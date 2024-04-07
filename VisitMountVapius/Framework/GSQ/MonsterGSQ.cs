@@ -17,7 +17,7 @@ internal static class MonsterGSQ
         }
 
         if (!ArgUtility.TryGetInt(query, 1, out int minValue, out string error)
-            ||  ArgUtility.TryGetOptionalInt(query,2, out int maxValue, out error, int.MaxValue))
+            || ArgUtility.TryGetOptionalInt(query, 2, out int maxValue, out error, int.MaxValue))
         {
             return Helpers.ErrorResult(query, error);
         }

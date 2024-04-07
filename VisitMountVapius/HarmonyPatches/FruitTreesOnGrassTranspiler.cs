@@ -2,8 +2,6 @@
 
 using HarmonyLib;
 
-using StardewModdingAPI;
-
 using StardewValley;
 
 using VisitMountVapius.Framework;

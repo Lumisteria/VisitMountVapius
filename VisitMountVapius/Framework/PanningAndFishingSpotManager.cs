@@ -50,7 +50,7 @@ internal static class PanningAndFishingSpotManager
             ModEntry.ModMonitor.VerboseLog($"Checking fish spawn data for {currentLocation.NameOrUniqueName}");
 
             Rectangle zone = spawn.Area.ClampMap(currentLocation);
-            for (int tries = 0; tries < 8; tries ++)
+            for (int tries = 0; tries < 8; tries++)
             {
                 Point p = zone.GetRandomTile();
                 if (!currentLocation.isOpenWater(p.X, p.Y) || currentLocation.doesTileHaveProperty(p.X, p.Y, "NoFishing", "Back") is not null)

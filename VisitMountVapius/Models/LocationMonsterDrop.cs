@@ -1,5 +1,5 @@
 ﻿namespace VisitMountVapius.Models;
-internal sealed class LocationMonsterDrop: EntryWithRectangle
+internal sealed class LocationMonsterDrop : EntryWithRectangle
 {
     public List<GeneralItemSpawnData>? Items { get; set; } = null;
 

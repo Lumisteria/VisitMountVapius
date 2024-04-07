@@ -1,6 +1,6 @@
-﻿using StardewValley.Extensions;
-using StardewValley;
+﻿using StardewValley;
 using StardewValley.Delegates;
+using StardewValley.Extensions;
 
 namespace VisitMountVapius.Models;
 /// <summary>
@@ -34,7 +34,7 @@ public abstract class BaseEntry
             return false;
         }
 
-        GameStateQueryContext context = new(location, player, null, null, Random.Shared,null, additional_context);
+        GameStateQueryContext context = new(location, player, null, null, Random.Shared, null, additional_context);
 
         return GameStateQuery.CheckConditions(this.Condition, context);
     }

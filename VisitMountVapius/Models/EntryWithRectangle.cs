@@ -5,7 +5,7 @@ namespace VisitMountVapius.Models;
 /// <summary>
 /// A data entry that has a rectangle area.
 /// </summary>
-internal class EntryWithRectangle: BaseEntry
+internal class EntryWithRectangle : BaseEntry
 {
     /// <summary>
     /// The rectangular area to check. Defaults to the whole map.
