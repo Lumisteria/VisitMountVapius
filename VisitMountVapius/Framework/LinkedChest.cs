@@ -3,6 +3,7 @@
 using StardewValley;
 using StardewValley.Inventories;
 using StardewValley.Menus;
+using StardewValley.Network;
 using StardewValley.Tools;
 
 namespace VisitMountVapius.Framework;
@@ -25,7 +26,7 @@ internal class LinkedChest
             return false;
         }
 
-        StardewValley.Network.NetMutex mutex = farmer.team.GetOrCreateGlobalInventoryMutex(PREFIX + chest_name);
+        NetMutex mutex = farmer.team.GetOrCreateGlobalInventoryMutex(PREFIX + chest_name);
 
         mutex.RequestLock(() =>
         {
@@ -55,7 +56,7 @@ internal class LinkedChest
             sourceItem: null);
     }
 
-    private static bool HighlightSansTools(Item i) => (i is not Tool || i is MeleeWeapon) && (i is not StardewValley.Object obj || !obj.questItem.Value);
+    private static bool HighlightSansTools(Item i) => (i is not Tool || i is MeleeWeapon) && (i is not SObject obj || !obj.questItem.Value);
 
     private static void GrabItemFromInventory(Item item, Farmer who, string chest_name)
     {
@@ -64,7 +65,7 @@ internal class LinkedChest
             item.Stack = 1;
         }
 
-        Inventory inventory = who.team.GetOrCreateGlobalInventory(chest_name);
+        Inventory inventory = who.team.GetOrCreateGlobalInventory(PREFIX + chest_name);
         Item? tmp = AddToInventory(inventory, item);
         if (tmp is null)
         {

@@ -110,65 +110,11 @@ internal sealed class ModEntry : Mod
             return;
         }
 
-        this.HandleArtifactSpawning();
+        ArtifactSpawnHandler.Spawn();
     }
 
     private void OnTimeChanged(object? sender, TimeChangedEventArgs e)
     {
         PanningAndFishingSpotManager.Apply(Game1.currentLocation, Game1.player);
-    }
-
-    private void HandleArtifactSpawning()
-    {
-        foreach ((string location, LocationDataExtensions data) in AssetLoader.GetLocationData())
-        {
-            if (Game1.getLocationFromName(location) is not GameLocation loc)
-            {
-                this.Monitor.LogOnce($"Location extension data references {location} which does not seem to exist, skipping.", LogLevel.Warn);
-                continue;
-            }
-
-            if (data.ArtifactSpawnZones is { } zoneData && zoneData.Count > 0)
-            {
-                foreach (ArtifactSpotSpawnZone zone in zoneData)
-                {
-                    if (!zone.CheckCondition(loc, Game1.player))
-                    {
-                        continue;
-                    }
-
-                    int count = zone.Range.Get();
-                    if (count <= 0)
-                    {
-                        continue;
-                    }
-
-                    int safety = 50;
-                    Rectangle possible = zone.Area.ClampMap(loc);
-                    while (count > 0 && safety > 0)
-                    {
-                        Point p = possible.GetRandomTile();
-                        Vector2 v = p.ToVector2();
-
-                        // same checks as game.
-                        if (loc.CanItemBePlacedHere(v, true)
-                            && !loc.IsTileOccupiedBy(v)
-                            && loc.getTileIndexAt(p.X, p.Y, "AlwaysFront") == -1
-                            && loc.getTileIndexAt(p.X, p.Y, "Front") == -1
-                            && !loc.isBehindBush(v)
-                            && (loc.doesTileHaveProperty(p.X, p.Y, "Diggable", "Back") is not null
-                                || (loc.GetSeason() == Season.Winter && loc.doesTileHaveProperty(p.X, p.Y, "Type", "Back") == "Grass")))
-                        {
-                            if (loc.Objects.TryAdd(v, ItemRegistry.Create<SObject>(zone.Type)))
-                            {
-                                count--;
-                            }
-                        }
-
-                        safety--;
-                    }
-                }
-            }
-        }
     }
 }
