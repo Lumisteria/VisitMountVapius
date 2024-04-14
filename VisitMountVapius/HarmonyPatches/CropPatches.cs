@@ -4,6 +4,7 @@ using StardewValley;
 using StardewValley.Extensions;
 
 using VisitMountVapius.Framework;
+using VisitMountVapius.Models;
 
 namespace VisitMountVapius.HarmonyPatches;
 
@@ -28,12 +29,15 @@ internal static class CropPatches
             return;
         }
 
-        var data = AssetLoader.GetCropData().GetValueOrDefault(__instance.isWildSeedCrop() ? __instance.whichForageCrop.Value : __instance.netSeedIndex.Value);
+        string cropID = __instance.isWildSeedCrop() ? __instance.whichForageCrop.Value : __instance.netSeedIndex.Value;
+        CropDataExtensions? data = AssetLoader.GetCropData().GetValueOrDefault(cropID);
 
         if (data?.FertilizerData is not { } possibleFertilizers)
         {
             return;
         }
+
+        ModEntry.ModMonitor.VerboseLog($"Checking fertilizers for {cropID}");
 
         foreach ((string fertilizer, double chance) in possibleFertilizers)
         {

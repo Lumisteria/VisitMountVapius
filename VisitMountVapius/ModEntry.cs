@@ -57,6 +57,7 @@ internal sealed class ModEntry : Mod
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
     {
         GameLocation.RegisterTileAction("vmv.linked.chest", LinkedChest.Action);
+        GameLocation.RegisterTouchAction("vmv.teleport.player", TeleportPlayer.ApplyCommand);
 
         GameStateQuery.Register("VMV.HasSeenActiveDialogueEvent", HasSeenActiveDialogueEvent.Query);
         GameStateQuery.Register("VMV.MONSTER_NAME", MonsterGSQ.Name);
