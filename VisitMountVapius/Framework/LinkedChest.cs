@@ -1,4 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using HarmonyLib;
+
+using Microsoft.Xna.Framework;
+
+using Netcode;
+
+using StardewModdingAPI.Utilities;
 
 using StardewValley;
 using StardewValley.Inventories;
@@ -11,6 +17,8 @@ internal class LinkedChest
 {
 
     const string PREFIX = "VisitMountVapis.";
+
+    private static readonly PerScreen<int> _lastMessage = new();
 
     internal static bool Action(GameLocation location, string[] args, Farmer farmer, Point point)
     {
@@ -31,6 +39,17 @@ internal class LinkedChest
         mutex.RequestLock(() =>
         {
             LaunchMenu(farmer, chest_name);
+        },
+        () =>
+        {
+            long farmerID = new Traverse(mutex).Field<NetLong>("owner").Value.Value;
+            ModEntry.ModMonitor.Log($"Huh, lock for linked chest held by {farmerID} - {Game1.getFarmer(farmerID)}");
+
+            if (_lastMessage.Value + 300 > Game1.ticks)
+            {
+                Game1.showRedMessage(I18n.Occupied());
+                _lastMessage.Value = Game1.ticks;
+            }
         });
 
         return true;
@@ -39,21 +58,25 @@ internal class LinkedChest
     private static void LaunchMenu(Farmer farmer, string chest_name)
     {
         Inventory items = farmer.team.GetOrCreateGlobalInventory(PREFIX + chest_name);
-        Game1.activeClickableMenu = new ItemGrabMenu(
-            inventory: items,
-            reverseGrab: false,
-            showReceivingMenu: true,
-            highlightFunction: HighlightSansTools,
-            behaviorOnItemSelectFunction: (item, farmer) => GrabItemFromInventory(item, farmer, chest_name),
-            message: null,
-            behaviorOnItemGrab: (item, farmer) => GrabItemFromChest(item, farmer, chest_name),
-            snapToBottom: false,
-            canBeExitedWithKey: true,
-            playRightClickSound: true,
-            allowRightClick: true,
-            showOrganizeButton: true,
-            source: ItemGrabMenu.source_chest,
-            sourceItem: null);
+        ItemGrabMenu itemGrabMenu = new(
+                    inventory: items,
+                    reverseGrab: false,
+                    showReceivingMenu: true,
+                    highlightFunction: HighlightSansTools,
+                    behaviorOnItemSelectFunction: (item, farmer) => GrabItemFromInventory(item, farmer, chest_name),
+                    message: null,
+                    behaviorOnItemGrab: (item, farmer) => GrabItemFromChest(item, farmer, chest_name),
+                    snapToBottom: false,
+                    canBeExitedWithKey: true,
+                    playRightClickSound: true,
+                    allowRightClick: true,
+                    showOrganizeButton: true,
+                    source: ItemGrabMenu.source_chest,
+                    sourceItem: null)
+        {
+            behaviorBeforeCleanup = (menu) => farmer.team.GetOrCreateGlobalInventoryMutex(PREFIX + chest_name).ReleaseLock()
+        };
+        Game1.activeClickableMenu = itemGrabMenu;
     }
 
     private static bool HighlightSansTools(Item i) => (i is not Tool || i is MeleeWeapon) && (i is not SObject obj || !obj.questItem.Value);

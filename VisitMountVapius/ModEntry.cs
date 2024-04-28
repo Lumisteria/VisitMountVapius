@@ -78,9 +78,9 @@ internal sealed class ModEntry : Mod
     private static void SetLocationData(GameLocation location)
     {
         Dictionary<string, LocationDataExtensions> data = AssetLoader.GetLocationData();
-        if (location is { } current
+        if (location is GameLocation current
             && (data.TryGetValue(current.Name, out LocationDataExtensions? locationData) ||
-                data.TryGetValue(current.locationContextId, out locationData)))
+                data.TryGetValue(current.GetLocationContextId(), out locationData)))
         {
             ActiveLocation = locationData;
         }
@@ -92,13 +92,26 @@ internal sealed class ModEntry : Mod
 
     private void OnPlayerWarped(object? sender, WarpedEventArgs e)
     {
-        if (ReferenceEquals(e.OldLocation, e.NewLocation))
+        if (ReferenceEquals(e.OldLocation, e.NewLocation) || e.NewLocation is not { } loc)
         {
             return;
         }
 
-        SetLocationData(e.NewLocation);
-        PanningAndFishingSpotManager.Apply(e.NewLocation, Game1.player);
+        // fix wind effects sometimes persisting when it shouldn't.
+        if (loc.IsDebrisWeatherHere())
+        {
+            if (!loc.ignoreDebrisWeather.Value && Game1.debrisWeather.Count == 0)
+            {
+                Game1.populateDebrisWeatherArray();
+            }
+        }
+        else
+        {
+            Game1.debrisWeather.Clear();
+        }
+
+        SetLocationData(loc);
+        PanningAndFishingSpotManager.Apply(loc, Game1.player);
     }
 
     private void OnDayStart(object? sender, DayStartedEventArgs e)

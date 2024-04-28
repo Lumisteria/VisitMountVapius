@@ -31,7 +31,7 @@ internal static class AssetLoader
         }
     }
 
-    internal static Dictionary<string, LocationDataExtensions> GetLocationData() => Game1.temporaryContent.Load<Dictionary<string, LocationDataExtensions>>(LocationExtensions.BaseName);
+    internal static Dictionary<string, LocationDataExtensions> GetLocationData() => Game1.content.Load<Dictionary<string, LocationDataExtensions>>(LocationExtensions.BaseName);
 
-    internal static Dictionary<string, CropDataExtensions> GetCropData() => Game1.temporaryContent.Load<Dictionary<string,  CropDataExtensions>>(CropExtensions.BaseName);
+    internal static Dictionary<string, CropDataExtensions> GetCropData() => Game1.content.Load<Dictionary<string,  CropDataExtensions>>(CropExtensions.BaseName);
 }

@@ -13,35 +13,35 @@ internal static class TeleportPlayer
     /// <param name="who">The farmer in question.</param>
     /// <param name="point">tile location.</param>
     /// <returns>True if handled, false otherwise.</returns>
-    internal static bool ApplyCommand(GameLocation loc, string[] parameters, Farmer who, Vector2 point)
+    internal static void ApplyCommand(GameLocation loc, string[] parameters, Farmer who, Vector2 point)
     {
         if (!who.IsLocalPlayer)
         {
-            return false;
+            return;
         }
 
         if (parameters.Length < 4)
         {
             loc.LogTileActionError(parameters, (int)point.X, (int)point.Y, "incorrect number of parameters (expected at least 4)");
-            return false;
+            return;
         }
 
         // <string area> <int x> <int y> [int facing] [string prerequisite]
         if (!ArgUtility.TryGet(parameters, 1, out string? map, out string? error, false))
         {
             loc.LogTileActionError(parameters, (int)point.X, (int)point.Y, error);
-            return false;
+            return;
         }
         if (Game1.getLocationFromName(map) is not GameLocation destination)
         {
             loc.LogTileActionError(parameters, (int)point.X, (int)point.Y, $"find destination for map {map}");
-            return false;
+            return;
         }
 
         if (!ArgUtility.TryGetInt(parameters, 2, out int x, out error) || !ArgUtility.TryGetInt(parameters, 3, out int y, out error))
         {
             loc.LogTileActionError(parameters, (int)point.X, (int)point.Y, error);
-            return false;
+            return;
         }
 
         int? direction = null;
@@ -61,12 +61,11 @@ internal static class TeleportPlayer
                 if (!GameStateQuery.CheckConditions(condition))
                 {
                     ModEntry.ModMonitor.VerboseLog($"[Teleport] action failed condition.");
-                    return false;
+                    return;
                 }
             }
         }
 
         Game1.warpFarmer(destination.Name, x, y, direction ?? who.FacingDirection, false);
-        return true;
     }
 }
