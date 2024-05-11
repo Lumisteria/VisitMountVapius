@@ -20,7 +20,7 @@
     <UniqueID>lumisteria.visitmountvapius.code</UniqueID>
     <MinimumApiVersion>4.0.0</MinimumApiVersion>
     <MinimumGameVersion>1.6.4</MinimumGameVersion>
-    <Version>1.1.2</Version>
+    <Version>1.2.2</Version>
     <UpdateKeys>Nexus:9600</UpdateKeys>
   </PropertyGroup>
   

@@ -1,15 +1,15 @@
 ﻿using HarmonyLib;
 
-using Microsoft.Xna.Framework;
-
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 
 using StardewValley;
+using StardewValley.Internal;
 
 using VisitMountVapius.Framework;
 using VisitMountVapius.Framework.GSQ;
+using VisitMountVapius.Framework.ItemQueries;
 using VisitMountVapius.Interfaces;
 using VisitMountVapius.Models;
 
@@ -41,6 +41,8 @@ internal sealed class ModEntry : Mod
         helper.Events.Player.Warped += this.OnPlayerWarped;
         helper.Events.GameLoop.DayStarted += this.OnDayStart;
 
+        helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
+
         helper.Events.GameLoop.TimeChanged += this.OnTimeChanged;
 
         AssetLoader.Init(helper.GameContent);
@@ -54,6 +56,11 @@ internal sealed class ModEntry : Mod
 #endif
     }
 
+    private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
+    {
+        MissingArtifact.Reset();
+    }
+
     private void OnGameLaunched(object? sender, GameLaunchedEventArgs e)
     {
         GameLocation.RegisterTileAction("vmv.linked.chest", LinkedChest.Action);
@@ -62,6 +69,8 @@ internal sealed class ModEntry : Mod
         GameStateQuery.Register("VMV.HasSeenActiveDialogueEvent", HasSeenActiveDialogueEvent.Query);
         GameStateQuery.Register("VMV.MONSTER_NAME", MonsterGSQ.Name);
         GameStateQuery.Register("VMV.MONSTER_MAX_HEALTH", MonsterGSQ.MaxHealth);
+
+        ItemQueryResolver.Register("VMV.MISSING_ARTIFACT_OR_ITEM", MissingArtifact.Query);
 
         // handle integration with events tester.
         try
